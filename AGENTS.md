@@ -2,6 +2,9 @@
 
 Frontend nuevo del módulo de proyección de haber jubilatorio de CPBA (cpbaonline.com.ar). Consume los servicios backend actuales y usa la sesión del sitio actual. Requerimientos: `PRD-001-proyeccion-haber-jubilatorio.md`.
 
+## Language
+Working language: Spanish — write all artifacts in Spanish (PRDs, specs, ADRs, reports, commit messages, status lines), en castellano rioplatense.
+
 ## Stack
 - Angular 18.2, TypeScript ~5.5, RxJS ~7.8, zone.js ~0.14. Node ^18.19.1, ^20.11.1 o ^22 (lo exige Angular 18).
 - UI: PrimeNG ^17.18, PrimeFlex ^3.3, PrimeIcons ^7, Chart.js ^4.4.
@@ -29,6 +32,17 @@ npm test                    # tests unitarios (Karma)
 npm run build               # build de producción (configuración por defecto)
 npm run build -- -c qa      # build de QA
 ```
+
+## Testing
+| Campo | Valor |
+|-------|-------|
+| Coverage floor — line | 80% |
+| Coverage floor — branch | 80% |
+| Coverage floor — function | 80% |
+| How the suite is run | `npm test` (Karma + Jasmine en Chrome, con `karma-coverage`) |
+| What a skipped test owes | un comentario con el motivo en la misma línea (`xit` / `xdescribe`) |
+
+Este piso es el único que vale. Si `karma.conf.js` define umbrales de cobertura (`check`), tienen que coincidir con esta tabla.
 
 ## Architecture conventions
 - Todo el módulo vive en `src/app/proyeccion/`, separado en capas:

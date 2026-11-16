@@ -1,0 +1,30 @@
+@import 'primeflex/primeflex.css';
+
+// Tipografías del diseño aprobado (docs/disenos/), alojadas en el propio build.
+@font-face {
+  font-family: Lora;
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/lora-600-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./assets/fonts/work-sans-latin.woff2') format('woff2');
+}
+
+// Texto base de 18 px (NFR-02). El resto de las medidas van en rem a partir de este valor.
+html {
+  font-size: 18px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  color: #1a2e22;
+  background-color: #d8e3d3;
+}

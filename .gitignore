@@ -12,3 +12,10 @@
 .daw-journal.jsonl
 .daw/**/__pycache__/
 # END DAW
+
+# Dependencias, builds y reportes generados
+node_modules/
+build_package/
+.angular/
+coverage/
+dist/

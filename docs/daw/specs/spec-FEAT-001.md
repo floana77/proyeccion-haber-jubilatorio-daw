@@ -6,7 +6,7 @@
 | PRD | docs/daw/prd/prd-FEAT-001.md |
 | Tier | FEATURE |
 | Date | 2026-11-16T15:50:00Z |
-| Spec loops | 5 |
+| Spec loops | 6 |
 | Loops since last human decision | 0 |
 
 ## Summary
@@ -60,8 +60,8 @@ Habilitador técnico de todos los FR: deja el proyecto compilando y testeando co
 - Sin condiciones de error propias: es configuración y arranque, sin entrada ni datos.
 
 **Required tests**
-- [ ] `AppComponent` se crea y renderiza `app-proyeccion-page` — habilitador de AC-01
-- [ ] `npm test` corre en ChromeHeadless y genera el reporte de cobertura con el `check` 80/80/80
+- [ ] `test_app_se_crea_y_renderiza_pantalla` — `AppComponent` se crea y renderiza `app-proyeccion-page` — habilitador de AC-01
+- [ ] `test_suite_karma_con_cobertura` — `npm test` corre en ChromeHeadless y genera el reporte de cobertura con el `check` 80/80/80
 
 **Completion criterion**
 `npm install`, `npm test` y `npm run build -- -c development` terminan sin error, y `git status` no muestra `node_modules/`, `.angular/` ni `coverage/`.
@@ -96,16 +96,16 @@ Implementa la obtención del estado de la matrícula (FR-01) y de las fechas mí
 - Gateway de producción — `obtenerEstadoMatricula()` y `obtenerFechasMinimas()` terminan con `ProyeccionNoDisponibleError`; lo maneja el store (Block 3).
 
 **Required tests**
-- [ ] `esFallecido` devuelve `true` solo para `'fallecido'` y `false` para `'activa'`, `'cancelado'` y `'suspendido'` — validates AC-01, AC-03
-- [ ] `formatearFechaCalendario('2031-10-14')` devuelve `'14/10/2031'` y `('2026-09-01')` devuelve `'01/09/2026'` — validates AC-01
-- [ ] `formatearFechaCalendario` con fecha inválida (`'2031-13-01'`, `'14/10/2031'`, `''`) lanza `FechaCalendarioInvalidaError`
-- [ ] `resolverEscenario('?escenario=fallecido')` devuelve `fallecido` y `('?escenario=activo')` devuelve `activo`
-- [ ] `resolverEscenario('')` (parámetro faltante) devuelve `activo` — validates AC-04
-- [ ] `resolverEscenario` con valor inválido (`'?escenario=xyz'`, `'?escenario=FALLECIDO'`, `'?escenario=<script>'`) devuelve `activo` — validates AC-05
-- [ ] el gateway en memoria con escenario `activo` devuelve `'activa'` y las fechas `2031-10-14` y `2026-09-01` — validates AC-01
-- [ ] el gateway en memoria con escenario `fallecido` devuelve `'fallecido'` — validates AC-03
-- [ ] el gateway no disponible emite error `ProyeccionNoDisponibleError` en las dos operaciones, aun con `UBICACION` = `'?escenario=activo'` — validates AC-06
-- [ ] la factory de `UBICACION` devuelve `window.location.search`
+- [ ] `test_es_fallecido_solo_para_fallecido` — `esFallecido` devuelve `true` solo para `'fallecido'` y `false` para `'activa'`, `'cancelado'` y `'suspendido'` — validates AC-01, AC-03
+- [ ] `test_formatea_fecha_calendario` — `formatearFechaCalendario('2031-10-14')` devuelve `'14/10/2031'` y `('2026-09-01')` devuelve `'01/09/2026'` — validates AC-01
+- [ ] `test_fecha_calendario_invalida_lanza_error` — `formatearFechaCalendario` con fecha inválida (`'2031-13-01'`, `'14/10/2031'`, `''`) lanza `FechaCalendarioInvalidaError`
+- [ ] `test_resolver_escenario_valor_permitido` — `resolverEscenario('?escenario=fallecido')` devuelve `fallecido` y `('?escenario=activo')` devuelve `activo`
+- [ ] `test_resolver_escenario_faltante` — `resolverEscenario('')` (parámetro faltante) devuelve `activo` — validates AC-04
+- [ ] `test_resolver_escenario_invalido` — `resolverEscenario` con valor inválido (`'?escenario=xyz'`, `'?escenario=FALLECIDO'`, `'?escenario=<script>'`) devuelve `activo` — validates AC-05
+- [ ] `test_gateway_en_memoria_activo` — el gateway en memoria con escenario `activo` devuelve `'activa'` y las fechas `2031-10-14` y `2026-09-01` — validates AC-01
+- [ ] `test_gateway_en_memoria_fallecido` — el gateway en memoria con escenario `fallecido` devuelve `'fallecido'` — validates AC-03
+- [ ] `test_gateway_no_disponible_error` — el gateway no disponible emite error `ProyeccionNoDisponibleError` en las dos operaciones, aun con `UBICACION` = `'?escenario=activo'` — validates AC-06
+- [ ] `test_ubicacion_factory` — la factory de `UBICACION` devuelve `window.location.search`
 
 **Completion criterion**
 Los 10 tests del bloque pasan y ningún archivo de `domain/` importa `@angular/*`.
@@ -126,13 +126,13 @@ Los 10 tests del bloque pasan y ningún archivo de `domain/` importa `@angular/*
 - Error al obtener las fechas mínimas — la vista queda en `solo-titulo`, sin mensaje.
 
 **Required tests**
-- [ ] `decidirVista` con estado `'activa'` y fechas devuelve `beneficios` con esas fechas — validates AC-01
-- [ ] `decidirVista` con estado `'fallecido'` devuelve `solo-titulo` — validates AC-03
-- [ ] `decidirVista` con error, o con estado no fallecido sin fechas, devuelve `solo-titulo`
-- [ ] el store con estado `'activa'` pide las fechas y expone la vista `beneficios` — validates AC-01
-- [ ] el store con estado `'fallecido'` no llama a `obtenerFechasMinimas()` (espía con cero llamadas) y expone `solo-titulo` — validates AC-03
-- [ ] el store con error al obtener el estado expone `solo-titulo` y no pide las fechas
-- [ ] el store con error al obtener las fechas expone `solo-titulo`
+- [ ] `test_decidir_vista_beneficios` — `decidirVista` con estado `'activa'` y fechas devuelve `beneficios` con esas fechas — validates AC-01
+- [ ] `test_decidir_vista_fallecido` — `decidirVista` con estado `'fallecido'` devuelve `solo-titulo` — validates AC-03
+- [ ] `test_decidir_vista_error_o_faltante` — `decidirVista` con error, o con estado no fallecido sin fechas, devuelve `solo-titulo`
+- [ ] `test_store_activa_pide_fechas` — el store con estado `'activa'` pide las fechas y expone la vista `beneficios` — validates AC-01
+- [ ] `test_store_fallecido_no_pide_fechas` — el store con estado `'fallecido'` no llama a `obtenerFechasMinimas()` (espía con cero llamadas) y expone `solo-titulo` — validates AC-03
+- [ ] `test_store_error_estado` — el store con error al obtener el estado expone `solo-titulo` y no pide las fechas
+- [ ] `test_store_error_fechas` — el store con error al obtener las fechas expone `solo-titulo`
 
 **Completion criterion**
 Los 7 tests del bloque pasan y la regla de fallecido aparece una sola vez en el código (`esFallecido` en `domain/tipos.ts`).
@@ -155,12 +155,12 @@ Muestra el título siempre y, con vista `beneficios`, las dos tarjetas solo de l
 - Sin condiciones de error propias: la pantalla solo muestra la vista que calcula el store en Block 3, que ya resuelve los errores de carga.
 
 **Required tests**
-- [ ] con un store en vista `beneficios` (`2031-10-14`, `2026-09-01`), la pantalla muestra el título, "Jubilación Ordinaria" con "Fecha mínima: 14/10/2031" y "Jubilación Parcial" con "Fecha mínima: 01/09/2026" — validates AC-01
-- [ ] la pantalla en vista `beneficios` no tiene `input`, `button`, `select` ni `[role=radio]`, y un clic sobre cada tarjeta no cambia el contenido renderizado — validates AC-02
-- [ ] con un store en vista `solo-titulo`, la pantalla muestra solo el `<h1>` con el título, sin `<article>`, sin fechas y sin alertas — validates AC-03
-- [ ] el componente llama a `store.cargar()` una vez al iniciar
-- [ ] `AppComponent`, sin `CUSTOM_ELEMENTS_SCHEMA` y con un `ProyeccionGateway` falso, renderiza `ProyeccionPageComponent` con el título "Tu proyección de haber jubilatorio" — validates AC-01
-- [ ] verificación de la pantalla del escenario `activo` en 360×640, 768×1024, 1024×768 y 1920×1080 (DevTools) sin scroll horizontal, superposiciones ni textos cortados, y auditoría con axe sin fallas de contraste, con texto base de 18 px — validates AC-07
+- [ ] `test_pantalla_beneficios_con_fechas` — con un store en vista `beneficios` (`2031-10-14`, `2026-09-01`), la pantalla muestra el título, "Jubilación Ordinaria" con "Fecha mínima: 14/10/2031" y "Jubilación Parcial" con "Fecha mínima: 01/09/2026" — validates AC-01
+- [ ] `test_pantalla_sin_controles` — la pantalla en vista `beneficios` no tiene `input`, `button`, `select` ni `[role=radio]`, y un clic sobre cada tarjeta no cambia el contenido renderizado — validates AC-02
+- [ ] `test_pantalla_solo_titulo` — con un store en vista `solo-titulo`, la pantalla muestra solo el `<h1>` con el título, sin `<article>`, sin fechas y sin alertas — validates AC-03
+- [ ] `test_pantalla_carga_una_vez` — el componente llama a `store.cargar()` una vez al iniciar
+- [ ] `test_app_renderiza_pantalla_real` — `AppComponent`, sin `CUSTOM_ELEMENTS_SCHEMA` y con un `ProyeccionGateway` falso, renderiza `ProyeccionPageComponent` con el título "Tu proyección de haber jubilatorio" — validates AC-01
+- [ ] `test_verificacion_manual_ac07` — verificación de la pantalla del escenario `activo` en 360×640, 768×1024, 1024×768 y 1920×1080 (DevTools) sin scroll horizontal, superposiciones ni textos cortados, y auditoría con axe sin fallas de contraste, con texto base de 18 px — validates AC-07
 
 **Completion criterion**
 Los 5 tests automáticos del bloque pasan, `src/app/app.component.ts` ya no usa `CUSTOM_ELEMENTS_SCHEMA` y la verificación de AC-07 queda registrada con su resultado en el reporte de tests.
@@ -183,8 +183,8 @@ Conecta cada ambiente con su implementación de `ProyeccionGateway`: datos simul
 - Sin condiciones de error propias: es configuración por ambiente; el error del gateway de producción lo define Block 2 y lo maneja Block 3.
 
 **Required tests**
-- [ ] `environment.gatewayProviders` y `environment.qa.gatewayProviders` resuelven `ProyeccionGateway` a `ProyeccionEnMemoriaGateway` y, sin parámetro `escenario`, el estado es `'activa'` — validates AC-04
-- [ ] `environment.prod.gatewayProviders` resuelve `ProyeccionGateway` a `ProyeccionNoDisponibleGateway` y `production` es `true` — validates AC-06
+- [ ] `test_environment_dev_y_qa_en_memoria` — `environment.gatewayProviders` y `environment.qa.gatewayProviders` resuelven `ProyeccionGateway` a `ProyeccionEnMemoriaGateway` y, sin parámetro `escenario`, el estado es `'activa'` — validates AC-04
+- [ ] `test_environment_prod_no_disponible` — `environment.prod.gatewayProviders` resuelve `ProyeccionGateway` a `ProyeccionNoDisponibleGateway` y `production` es `true` — validates AC-06
 
 **Completion criterion**
 Los 2 tests del bloque pasan, `npm run build` (producción) y `npm run build -- -c qa` terminan sin error, y el chequeo de la verificación final da cero coincidencias.
@@ -211,9 +211,9 @@ Habilitador técnico de seguridad para todos los FR (threat-FEAT-001, R-04): sac
 - Sin condiciones de error propias: es una actualización de dependencias y configuración, sin entrada ni datos; el comportamiento lo cubren los tests de los Blocks 1 a 5.
 
 **Required tests**
-- [ ] `npm audit --omit=dev` termina sin hallazgos Critical ni High (antes de actualizar falla con 3 High en `@angular/core`, `common` y `compiler`) — habilitador del SAST
-- [ ] `npm test` vuelve a pasar los 25 tests de los Blocks 1 a 5 sin modificarlos, con cobertura de líneas, ramas y funciones ≥ 80 % — validates AC-01, AC-02, AC-03, AC-04, AC-05, AC-06
-- [ ] `npm run build` (producción) y `npm run build -- -c qa` terminan sin error, y `grep -rE "2031-10-14|2026-09-01" build_package/` sobre el build de producción no devuelve coincidencias — validates AC-06
+- [ ] `test_audit_sin_high` — `npm audit --omit=dev` termina sin hallazgos Critical ni High (antes de actualizar falla con 3 High en `@angular/core`, `common` y `compiler`) — habilitador del SAST
+- [ ] `test_suite_completa_en_verde` — `npm test` vuelve a pasar los 25 tests de los Blocks 1 a 5 sin modificarlos, con cobertura de líneas, ramas y funciones ≥ 80 % — validates AC-01, AC-02, AC-03, AC-04, AC-05, AC-06
+- [ ] `test_builds_sin_datos_simulados` — `npm run build` (producción) y `npm run build -- -c qa` terminan sin error, y `grep -rE "2031-10-14|2026-09-01" build_package/` sobre el build de producción no devuelve coincidencias — validates AC-06
 
 **Completion criterion**
 Los tres tests del bloque pasan, `grep -rnE "primeng|chart\.js|primeicons|@angular/forms|@angular/animations" src package.json` no devuelve coincidencias, y `npx ng version` informa Angular 21.2.x.

@@ -15,10 +15,10 @@
   ✅ F-SPEC-16: every documented error is named by a test
   ✅ F-SPEC-11: dependencies between blocks are declared
   ⚠️ W-SPEC-01: block referencing no FR — enabler or gold-plating?: Block 1 (Base del proyecto Angular), Block 6 (Actualización a Angular 21 LTS y limpieza de dependencias)
-  ⚠️ W-SPEC-02: large block, consider splitting: Block 1 (Base del proyecto Angular) (16 files, 374 words), Block 2 (Dominio y acceso a los datos) (13 files, 517 words), Block 4 (Pantalla de proyección) (7 files, 420 words), Block 5 (Ambientes) (7 files, 264 words), Block 6 (Actualización a Angular 21 LTS y limpieza de dependencias) (6 files, 557 words)
+  ⚠️ W-SPEC-02: large block, consider splitting: Block 1 (Base del proyecto Angular) (16 files, 374 words), Block 2 (Dominio y acceso a los datos) (13 files, 517 words), Block 4 (Pantalla de proyección) (7 files, 420 words), Block 5 (Ambientes) (7 files, 264 words), Block 6 (Actualización a Angular 21 LTS y limpieza de dependencias) (7 files, 635 words)
   👁  F-SPEC-12 (contradicts the PRD) and F-SPEC-13 (terminology diverging from
       the PRD) are MANUAL: judge them and say so explicitly in your report.
-  ✅ F-SPEC-LOOP: 0 loop(s) since a human decided, under the ceiling of 3; 4 in total for this document
+  ✅ F-SPEC-LOOP: 0 loop(s) since a human decided, under the ceiling of 3; 5 in total for this document
 ────────────────────────────────────────────────────────────────
 Total: 13 passed, 0 failed, 2 warnings
 Result: PASSED

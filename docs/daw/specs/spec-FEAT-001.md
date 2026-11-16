@@ -6,7 +6,7 @@
 | PRD | docs/daw/prd/prd-FEAT-001.md |
 | Tier | FEATURE |
 | Date | 2026-11-16T15:50:00Z |
-| Spec loops | 4 |
+| Spec loops | 5 |
 | Loops since last human decision | 0 |
 
 ## Summary
@@ -196,9 +196,12 @@ Agregado por el loop correctivo desde el SAST de CODE (F-SAST-13 High en Angular
 **Files**
 - `package.json` (modified) — `@angular/core`, `common`, `compiler`, `platform-browser` y `platform-browser-dynamic` ~21.2 (21.2.26 o posterior dentro de la línea 21 LTS); `@angular-devkit/build-angular`, `@angular/cli` y `@angular/compiler-cli` ~21.2; `@angular-builders/custom-webpack` ^21.1; `typescript` ~5.9; `zone.js` ~0.15; `rxjs` ~7.8; `primeflex` ^3.3; quita `primeng`, `primeicons`, `chart.js`, `@angular/forms` y `@angular/animations`; `engines.node`: `^20.19.0 || ^22.12.0 || >=24`.
 - `package-lock.json` (modified) — regenerado con la actualización.
-- `angular.json` (modified) — solo lo que pidan los builders de la versión 21 (por ejemplo, opciones del builder `browser` que la 21 ya no acepte); se conservan `outputPath` `./build_package`, las configuraciones development, qa y production y los `fileReplacements`.
-- `tsconfig.json`, `tsconfig.app.json` y `tsconfig.spec.json` (modified, si la versión 21 lo requiere) — opciones de compilación compatibles con TypeScript 5.9 y Angular 21, manteniendo `strict` y `strictTemplates`.
+- `angular.json` (modified) — lo que pidan los builders de la versión 21, más el bloque `schematics` (`type` y `typeSeparator` de los generadores) que agrega la actualización automática de la CLI 20 para conservar el estilo de nombres; se conservan `outputPath` `./build_package`, las configuraciones development, qa y production y los `fileReplacements`.
+- `tsconfig.json` (modified) — la actualización automática de la CLI 21 quita `"lib": ["ES2022", "dom"]`, que pasa a derivarse del `target` ES2022; se mantienen `strict` y `strictTemplates`. `tsconfig.app.json` y `tsconfig.spec.json` sin cambios salvo que la versión 21 lo requiera.
 - `src/app/app.config.ts` (modified) — quita `provideAnimations()`, que no tiene consumidor.
+- `src/app/app.component.ts` (modified) — la actualización automática de Angular 19 quita `standalone: true`, que desde la 19 es el valor por defecto; sin cambio de comportamiento. `proyeccion-page.component.ts` conserva `standalone: true`, que sigue siendo válido.
+
+Cambios automáticos de `ng update` aceptados por la usuaria el 2026-11-16: los de `angular.json` (`schematics`), `tsconfig.json` (`lib`) y `app.component.ts` (`standalone`).
 - `AGENTS.md` (modified) — sección Stack: Angular 21.2 (LTS), TypeScript ~5.9, RxJS ~7.8, zone.js ~0.15, Node `^20.19.0 || ^22.12.0 || >=24`, UI solo PrimeFlex ^3.3 (PrimeNG y Chart.js vuelven cuando un ticket los use, ADR-003); los campos Lenguaje, Runtime y Framework actualizados.
 
 **Logic**

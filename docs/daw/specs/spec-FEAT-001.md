@@ -6,7 +6,7 @@
 | PRD | docs/daw/prd/prd-FEAT-001.md |
 | Tier | FEATURE |
 | Date | 2026-11-16T15:50:00Z |
-| Spec loops | 3 |
+| Spec loops | 4 |
 | Loops since last human decision | 0 |
 
 ## Summary
@@ -30,7 +30,8 @@ Se crea la base del proyecto Angular 18.2 del Stack de AGENTS.md y la pantalla i
 - Block 3 depende de Block 2 (usa `ProyeccionGateway` y `domain/tipos.ts`).
 - Block 4 depende de Block 3 (lee el store) y de Block 2 (`domain/fecha-calendario.ts`).
 - Block 5 depende de Block 2 (los dos gateways) y de Block 1 (`angular.json`, `app.config.ts`).
-- Orden de ejecución: 1 → 2 → 3 → 4 → 5.
+- Block 6 depende de los Blocks 1 a 5: actualiza las dependencias sobre el código ya implementado y vuelve a correr toda la suite.
+- Orden de ejecución: 1 → 2 → 3 → 4 → 5 → 6.
 
 ## Block 1 — Base del proyecto Angular
 
@@ -188,10 +189,36 @@ Conecta cada ambiente con su implementación de `ProyeccionGateway`: datos simul
 **Completion criterion**
 Los 2 tests del bloque pasan, `npm run build` (producción) y `npm run build -- -c qa` terminan sin error, y el chequeo de la verificación final da cero coincidencias.
 
+## Block 6 — Actualización a Angular 21 LTS y limpieza de dependencias
+
+Agregado por el loop correctivo desde el SAST de CODE (F-SAST-13 High en Angular 18.2, sin parche en 18.x ni 19.x), con la decisión de la usuaria del 2026-11-16 registrada en ADR-003.
+
+**Files**
+- `package.json` (modified) — `@angular/core`, `common`, `compiler`, `platform-browser` y `platform-browser-dynamic` ~21.2 (21.2.26 o posterior dentro de la línea 21 LTS); `@angular-devkit/build-angular`, `@angular/cli` y `@angular/compiler-cli` ~21.2; `@angular-builders/custom-webpack` ^21.1; `typescript` ~5.9; `zone.js` ~0.15; `rxjs` ~7.8; `primeflex` ^3.3; quita `primeng`, `primeicons`, `chart.js`, `@angular/forms` y `@angular/animations`; `engines.node`: `^20.19.0 || ^22.12.0 || >=24`.
+- `package-lock.json` (modified) — regenerado con la actualización.
+- `angular.json` (modified) — solo lo que pidan los builders de la versión 21 (por ejemplo, opciones del builder `browser` que la 21 ya no acepte); se conservan `outputPath` `./build_package`, las configuraciones development, qa y production y los `fileReplacements`.
+- `tsconfig.json`, `tsconfig.app.json` y `tsconfig.spec.json` (modified, si la versión 21 lo requiere) — opciones de compilación compatibles con TypeScript 5.9 y Angular 21, manteniendo `strict` y `strictTemplates`.
+- `src/app/app.config.ts` (modified) — quita `provideAnimations()`, que no tiene consumidor.
+- `AGENTS.md` (modified) — sección Stack: Angular 21.2 (LTS), TypeScript ~5.9, RxJS ~7.8, zone.js ~0.15, Node `^20.19.0 || ^22.12.0 || >=24`, UI solo PrimeFlex ^3.3 (PrimeNG y Chart.js vuelven cuando un ticket los use, ADR-003); los campos Lenguaje, Runtime y Framework actualizados.
+
+**Logic**
+Habilitador técnico de seguridad para todos los FR (threat-FEAT-001, R-04): saca a Angular de la rama 18, sin soporte ni parches, y lo lleva a la línea 21 LTS, que corrige todos los advisories de F-SAST-13 y F-SAST-16; y quita las dependencias de UI que ningún archivo de `src/` usa. La actualización se hace de a una major (18 → 19 → 20 → 21) con `ng update`. No cambia el comportamiento de la pantalla: los Blocks 1 a 5 y sus 25 tests siguen valiendo tal cual.
+
+**Error handling**
+- Sin condiciones de error propias: es una actualización de dependencias y configuración, sin entrada ni datos; el comportamiento lo cubren los tests de los Blocks 1 a 5.
+
+**Required tests**
+- [ ] `npm audit --omit=dev` termina sin hallazgos Critical ni High (antes de actualizar falla con 3 High en `@angular/core`, `common` y `compiler`) — habilitador del SAST
+- [ ] `npm test` vuelve a pasar los 25 tests de los Blocks 1 a 5 sin modificarlos, con cobertura de líneas, ramas y funciones ≥ 80 % — validates AC-01, AC-02, AC-03, AC-04, AC-05, AC-06
+- [ ] `npm run build` (producción) y `npm run build -- -c qa` terminan sin error, y `grep -rE "2031-10-14|2026-09-01" build_package/` sobre el build de producción no devuelve coincidencias — validates AC-06
+
+**Completion criterion**
+Los tres tests del bloque pasan, `grep -rnE "primeng|chart\.js|primeicons|@angular/forms|@angular/animations" src package.json` no devuelve coincidencias, y `npx ng version` informa Angular 21.2.x.
+
 ## Final verification
 - `npm test` pasa completo, con la cobertura de líneas, ramas y funciones ≥ 80 % (AGENTS.md, Testing).
 - `npm run build` genera `./build_package` y `grep -rE "2031-10-14|2026-09-01" build_package/` no devuelve coincidencias (AC-06, ADR-001, threat-FEAT-001, R-02).
 - `grep -rn "en-memoria" src --include=*.ts --exclude=*.spec.ts` solo devuelve `src/environments/environment.ts`, `src/environments/environment.qa.ts` y los archivos de `data/en-memoria/`.
-- `npm audit --omit=dev` revisado en el SAST de CODE (threat-FEAT-001, R-04).
+- `npm audit --omit=dev` sin hallazgos Critical ni High en el SAST de CODE (threat-FEAT-001, R-04; ADR-003).
 - Con `npm start`, `http://localhost:4200/?escenario=activo`, `/?escenario=fallecido`, `/` y `/?escenario=xyz` se ven como dicen AC-01, AC-03, AC-04 y AC-05.
 - Rollback: no hay migraciones ni cambios de datos; revertir es revertir los commits de la rama.

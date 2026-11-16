@@ -10,6 +10,26 @@ Frontend nuevo del módulo de proyección de haber jubilatorio de CPBA (cpbaonli
 - Ambientes: `src/environments/environment.ts` (dev), `environment.qa.ts` y `environment.prod.ts`, que se reemplazan por `fileReplacements`.
 - Mockups de desarrollo y QA: en la primera versión están dentro de la app (gateway en memoria) y solo se importan desde `environment.ts` y `environment.qa.ts`. Los servidores mock de Postman quedan para más adelante; sus URLs van solo en esos mismos archivos.
 
+| Campo | Valor |
+|-------|-------|
+| Lenguaje | TypeScript ~5.5 |
+| Runtime | Node ^18.19.1, ^20.11.1 o ^22 |
+| Framework | Angular 18.2 + PrimeNG 17 |
+| Base de datos | N/A (solo consume los servicios backend actuales) |
+| Test runner | Karma + Jasmine (Chrome) |
+| Linter / formatter | No configurado |
+| Package manager | npm |
+
+Comandos:
+```bash
+npm install                 # instalar dependencias
+npm start                   # levantar en dev: http://localhost:4200 (usa environment.ts)
+npm start -- -c qa          # levantar con la configuración de QA
+npm test                    # tests unitarios (Karma)
+npm run build               # build de producción (configuración por defecto)
+npm run build -- -c qa      # build de QA
+```
+
 ## Architecture conventions
 - Todo el módulo vive en `src/app/proyeccion/`, separado en capas:
   ```text

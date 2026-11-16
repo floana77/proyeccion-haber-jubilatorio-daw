@@ -1,0 +1,20 @@
+<main class="panel">
+  <h1 class="titulo">{{ textos.titulo }}</h1>
+
+  @if (vista(); as v) {
+    @if (v.tipo === 'beneficios') {
+      <div class="beneficios">
+        <article class="tarjeta">
+          <h2 class="tarjeta__nombre">{{ textos.ordinaria.nombre }}</h2>
+          <p class="tarjeta__descripcion">{{ textos.ordinaria.descripcion }}</p>
+          <p class="tarjeta__fecha">{{ textos.leyendaFechaMinima }}<strong>{{ formatearFecha(v.fechas.ordinaria) }}</strong></p>
+        </article>
+        <article class="tarjeta">
+          <h2 class="tarjeta__nombre">{{ textos.parcial.nombre }}</h2>
+          <p class="tarjeta__descripcion">{{ textos.parcial.descripcion }}</p>
+          <p class="tarjeta__fecha">{{ textos.leyendaFechaMinima }}<strong>{{ formatearFecha(v.fechas.parcial) }}</strong></p>
+        </article>
+      </div>
+    }
+  }
+</main>

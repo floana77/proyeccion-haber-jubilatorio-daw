@@ -6,8 +6,8 @@
 | PRD | docs/daw/prd/prd-FEAT-001.md |
 | Tier | FEATURE |
 | Date | 2026-11-16T15:50:00Z |
-| Spec loops | 1 |
-| Loops since last human decision | 1 |
+| Spec loops | 2 |
+| Loops since last human decision | 2 |
 
 ## Summary
 Se crea la base del proyecto Angular 18.2 del Stack de AGENTS.md y la pantalla inicial del módulo en `src/app/proyeccion/`, separada en `domain/`, `data/`, `platform/`, `state/` y `ui/`. Un store pide el estado de la matrícula al puerto `ProyeccionGateway` y, solo si el afiliado no es fallecido, pide las fechas mínimas; la pantalla muestra el título y, si corresponde, dos tarjetas solo de lectura. En desarrollo y QA el puerto se implementa con datos simulados elegidos por el parámetro de URL `escenario`; en producción, con un gateway no disponible, elegido en el build (ADR-001). Las fechas se manejan como fecha calendario `AAAA-MM-DD` (ADR-002).
@@ -144,6 +144,8 @@ Los 7 tests del bloque pasan y la regla de fallecido aparece una sola vez en el 
 - `src/app/proyeccion/ui/proyeccion-page/proyeccion-page.component.html` (new) — `<h1>` con el título; con vista `beneficios`, dos `<article>` con nombre, texto y "Fecha mínima: <strong>dd/mm/aaaa</strong>", formateada con `formatearFechaCalendario`; sin controles editables, botones, radios ni selectores.
 - `src/app/proyeccion/ui/proyeccion-page/proyeccion-page.component.scss` (new) — tarjeta blanca con borde #c9d6c4, tipografías Lora (título) y Work Sans, unidades `rem`, tarjetas apiladas verticalmente con `max-width` y `width: 100%`.
 - `src/app/proyeccion/ui/proyeccion-page/proyeccion-page.component.spec.ts` (new).
+- `src/app/app.component.ts` (modified) — quita el `CUSTOM_ELEMENTS_SCHEMA` provisorio del Block 1 (docs/daw/specs/decisions-FEAT-001.md) e importa `ProyeccionPageComponent`.
+- `src/app/app.component.spec.ts` (modified) — provee un `ProyeccionGateway` falso en el TestBed, porque la pantalla real inyecta el store y llama a `cargar()`.
 
 **Logic**
 Muestra el título siempre y, con vista `beneficios`, las dos tarjetas solo de lectura de FR-03. Con vista `solo-titulo`, solo el título (FR-04). No compara fechas ni decide qué mostrar: usa la vista del store. Solo usa interpolación de plantilla, nunca `innerHTML` ni `bypassSecurityTrust*` (threat-FEAT-001, R-01).
@@ -156,15 +158,16 @@ Muestra el título siempre y, con vista `beneficios`, las dos tarjetas solo de l
 - [ ] la pantalla en vista `beneficios` no tiene `input`, `button`, `select` ni `[role=radio]`, y un clic sobre cada tarjeta no cambia el contenido renderizado — validates AC-02
 - [ ] con un store en vista `solo-titulo`, la pantalla muestra solo el `<h1>` con el título, sin `<article>`, sin fechas y sin alertas — validates AC-03
 - [ ] el componente llama a `store.cargar()` una vez al iniciar
+- [ ] `AppComponent`, sin `CUSTOM_ELEMENTS_SCHEMA` y con un `ProyeccionGateway` falso, renderiza `ProyeccionPageComponent` con el título "Tu proyección de haber jubilatorio" — validates AC-01
 - [ ] verificación de la pantalla del escenario `activo` en 360×640, 768×1024, 1024×768 y 1920×1080 (DevTools) sin scroll horizontal, superposiciones ni textos cortados, y auditoría con axe sin fallas de contraste, con texto base de 18 px — validates AC-07
 
 **Completion criterion**
-Los 4 tests automáticos del bloque pasan y la verificación de AC-07 queda registrada con su resultado en el reporte de tests.
+Los 5 tests automáticos del bloque pasan, `src/app/app.component.ts` ya no usa `CUSTOM_ELEMENTS_SCHEMA` y la verificación de AC-07 queda registrada con su resultado en el reporte de tests.
 
 ## Block 5 — Ambientes
 
 **Files**
-- `src/environments/environment.ts` (new) — `production: false`, `gatewayProviders: proveerGatewayEnMemoria()`.
+- `src/environments/environment.ts` (modified) — existe desde el Block 1 con `gatewayProviders: []` (decisions-FEAT-001.md); pasa a `production: false`, `gatewayProviders: proveerGatewayEnMemoria()`.
 - `src/environments/environment.qa.ts` (new) — igual que desarrollo, con `production: false`.
 - `src/environments/environment.prod.ts` (new) — `production: true`, `gatewayProviders: proveerGatewayNoDisponible()`; no importa nada de `data/en-memoria/` (ADR-001).
 - `src/environments/environment.prod.spec.ts` (new) — importa `environment.prod` directamente, porque los tests no usan `fileReplacements`.

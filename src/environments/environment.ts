@@ -1,8 +1,10 @@
-import { Provider } from '@angular/core';
+import { proveerGatewayEnMemoria } from '../app/proyeccion/data/en-memoria/proyeccion-en-memoria.gateway';
+import { Ambiente } from './ambiente';
 
-// Ambiente de desarrollo. TEMPORAL (Block 1 de FEAT-001): mínimo para que compile app.config.ts.
-// El Block 5 completa gatewayProviders con el gateway en memoria.
-export const environment: { production: boolean; gatewayProviders: Provider[] } = {
+// Ambiente de desarrollo: datos simulados por escenario (FR-05). En el código de la aplicación,
+// solo environment.ts y environment.qa.ts importan el gateway en memoria (ADR-001). Los specs
+// también pueden importarlo porque no entran al bundle.
+export const environment: Ambiente = {
   production: false,
-  gatewayProviders: [],
+  gatewayProviders: proveerGatewayEnMemoria(),
 };

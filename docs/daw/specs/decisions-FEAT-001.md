@@ -21,3 +21,6 @@ Supuestos tomados durante CODE y aprobados por la usuaria. Formato: decisión �
 - La plantilla distingue `beneficios` de `solo-titulo` leyendo la unión discriminada que ya calcula el store; no es una regla de decisión en `ui/` — la usuaria — 2026-11-16 — Block 4
 - Con vista `null` (cargando) se muestra solo el título, igual que en `solo-titulo` — la usuaria — 2026-11-16 — Block 4
 - La verificación manual de AC-07 (360×640, 768×1024, 1024×768 y 1920×1080 sin scroll horizontal ni textos cortados, y auditoría axe de contraste con texto base de 18 px) se hace al terminar el Block 5, cuando `npm start` ya conecta el gateway en memoria, y su resultado se registra en el reporte de tests del cierre de CODE (`docs/daw/reports/tests-FEAT-001.md`) — la usuaria — 2026-11-16 — Block 4
+- Interfaz común `Ambiente` en `src/environments/ambiente.ts`, implementada por los tres environments (incorporada a la spec en el loop correctivo del Block 5) — la usuaria — 2026-11-16 — Block 5
+- Los dos tests del bloque son un `it` que recorre desarrollo y QA con `withContext` (`environment.spec.ts`) y un `it` para producción (`environment.prod.spec.ts`) — la usuaria — 2026-11-16 — Block 5
+- Los tests usan `TestBed.inject(ProyeccionGateway, null, { optional: true })` para que un provider faltante aparezca como aserción fallida y no como excepción — la usuaria — 2026-11-16 — Block 5

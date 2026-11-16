@@ -27,6 +27,9 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.prod.ts" }
+              ],
               "budgets": [
                 { "type": "initial", "maximumWarning": "1.5MB", "maximumError": "3MB" },
                 { "type": "anyComponentStyle", "maximumWarning": "8kB", "maximumError": "16kB" }
@@ -34,6 +37,9 @@
               "outputHashing": "all"
             },
             "qa": {
+              "fileReplacements": [
+                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.qa.ts" }
+              ],
               "budgets": [
                 { "type": "initial", "maximumWarning": "1.5MB", "maximumError": "3MB" },
                 { "type": "anyComponentStyle", "maximumWarning": "8kB", "maximumError": "16kB" }

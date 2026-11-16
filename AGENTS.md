@@ -46,3 +46,17 @@ Frontend nuevo del módulo de proyección de haber jubilatorio de CPBA (cpbaonli
 - **Solicitud de Jubilación:** página del sitio actual donde se inicia el trámite de jubilación; se abre con el botón "Inicie su trámite de jubilación aquí".
 - **Sitio actual:** cpbaonline.com.ar, que provee el login, la sesión y los servicios backend que este módulo consume.
 - **Gateway en memoria / mockup:** implementación de `ProyeccionGateway` con datos simulados, solo para desarrollo y QA.
+
+<!-- BEGIN DAW (managed by DAW — do not edit by hand) -->
+# DAW — Dilux Agentic Workflow
+
+This repo uses **DAW**: an agent-driven development pipeline with the phases
+`CLASSIFY → DEFINE → PLAN → CODE → VERIFY → CLOSEOUT`.
+
+Before answering, read `.daw/orchestrator.md` and run its Boot Sequence. It is a strict state
+machine: it decides what you are allowed to do based on the phase recorded in `.daw-state.json`.
+
+The project's own context — stack, architecture, domain — is elsewhere in this file. It lives here,
+in `AGENTS.md`, and not in any one tool's file, on purpose: it is tool-agnostic and comes along
+unchanged when the pipeline is ported to another agent.
+<!-- END DAW -->

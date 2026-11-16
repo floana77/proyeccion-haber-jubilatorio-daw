@@ -6,18 +6,18 @@ Frontend nuevo del módulo de proyección de haber jubilatorio de CPBA (cpbaonli
 Working language: Spanish — write all artifacts in Spanish (PRDs, specs, ADRs, reports, commit messages, status lines), en castellano rioplatense.
 
 ## Stack
-- Angular 18.2, TypeScript ~5.5, RxJS ~7.8, zone.js ~0.14. Node ^18.19.1, ^20.11.1 o ^22 (lo exige Angular 18).
-- UI: PrimeNG ^17.18, PrimeFlex ^3.3, PrimeIcons ^7, Chart.js ^4.4.
-- Build: `@angular-builders/custom-webpack:browser` (webpack, no esbuild); config extra en `config/webpack.custom.js`. Salida en `./build_package`.
+- Angular 21.2 (LTS), TypeScript ~5.9, RxJS ~7.8, zone.js ~0.15. Node ^20.19.0, ^22.12.0 o >=24 (lo exige Angular 21).
+- UI: solo PrimeFlex ^3.3. PrimeNG y Chart.js vuelven, en una versión compatible con Angular 21, cuando un ticket los use (ADR-003).
+- Build: `@angular-builders/custom-webpack:browser` ^21 (webpack, no esbuild); config extra en `config/webpack.custom.js`. Salida en `./build_package`.
 - Tests unitarios: Karma ~6.4 + Jasmine ~5.2, en Chrome. Los `.feature` (Gherkin) no se ejecutan por ahora.
 - Ambientes: `src/environments/environment.ts` (dev), `environment.qa.ts` y `environment.prod.ts`, que se reemplazan por `fileReplacements`.
 - Mockups de desarrollo y QA: en la primera versión están dentro de la app (gateway en memoria) y solo se importan desde `environment.ts` y `environment.qa.ts`. Los servidores mock de Postman quedan para más adelante; sus URLs van solo en esos mismos archivos.
 
 | Campo | Valor |
 |-------|-------|
-| Lenguaje | TypeScript ~5.5 |
-| Runtime | Node ^18.19.1, ^20.11.1 o ^22 |
-| Framework | Angular 18.2 + PrimeNG 17 |
+| Lenguaje | TypeScript ~5.9 |
+| Runtime | Node ^20.19.0 \|\| ^22.12.0 \|\| >=24 |
+| Framework | Angular 21.2 + PrimeFlex 3 |
 | Base de datos | N/A (solo consume los servicios backend actuales) |
 | Test runner | Karma + Jasmine (Chrome) |
 | Linter / formatter | No configurado |

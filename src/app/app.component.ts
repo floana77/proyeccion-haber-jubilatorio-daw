@@ -4,7 +4,6 @@ import { ProyeccionPageComponent } from './proyeccion/ui/proyeccion-page/proyecc
 // Componente raíz: solo aloja la pantalla del módulo de proyección.
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [ProyeccionPageComponent],
   template: '<app-proyeccion-page />',
 })

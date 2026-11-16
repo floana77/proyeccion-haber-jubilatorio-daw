@@ -6,8 +6,8 @@
 | PRD | docs/daw/prd/prd-FEAT-001.md |
 | Tier | FEATURE |
 | Date | 2026-11-16T15:50:00Z |
-| Spec loops | 2 |
-| Loops since last human decision | 2 |
+| Spec loops | 3 |
+| Loops since last human decision | 0 |
 
 ## Summary
 Se crea la base del proyecto Angular 18.2 del Stack de AGENTS.md y la pantalla inicial del módulo en `src/app/proyeccion/`, separada en `domain/`, `data/`, `platform/`, `state/` y `ui/`. Un store pide el estado de la matrícula al puerto `ProyeccionGateway` y, solo si el afiliado no es fallecido, pide las fechas mínimas; la pantalla muestra el título y, si corresponde, dos tarjetas solo de lectura. En desarrollo y QA el puerto se implementa con datos simulados elegidos por el parámetro de URL `escenario`; en producción, con un gateway no disponible, elegido en el build (ADR-001). Las fechas se manejan como fecha calendario `AAAA-MM-DD` (ADR-002).
@@ -169,13 +169,14 @@ Los 5 tests automáticos del bloque pasan, `src/app/app.component.ts` ya no usa 
 **Files**
 - `src/environments/environment.ts` (modified) — existe desde el Block 1 con `gatewayProviders: []` (decisions-FEAT-001.md); pasa a `production: false`, `gatewayProviders: proveerGatewayEnMemoria()`.
 - `src/environments/environment.qa.ts` (new) — igual que desarrollo, con `production: false`.
+- `src/environments/ambiente.ts` (new) — interfaz `Ambiente { production: boolean; gatewayProviders: Provider[] }`, la forma común que implementan los tres environments (decisión de la usuaria, 2026-11-16).
 - `src/environments/environment.prod.ts` (new) — `production: true`, `gatewayProviders: proveerGatewayNoDisponible()`; no importa nada de `data/en-memoria/` (ADR-001).
 - `src/environments/environment.prod.spec.ts` (new) — importa `environment.prod` directamente, porque los tests no usan `fileReplacements`.
 - `src/environments/environment.spec.ts` (new) — importa `environment` y `environment.qa`.
 - `angular.json` (modified) — `fileReplacements` de `src/environments/environment.ts` por `environment.qa.ts` en `qa` y por `environment.prod.ts` en `production`.
 
 **Logic**
-Conecta cada ambiente con su implementación de `ProyeccionGateway`: datos simulados en desarrollo y QA (FR-05), gateway no disponible en producción (FR-06). Ningún archivo fuera de `environment.ts` y `environment.qa.ts` importa `data/en-memoria/`.
+Conecta cada ambiente con su implementación de `ProyeccionGateway`: datos simulados en desarrollo y QA (FR-05), gateway no disponible en producción (FR-06). En el código de la aplicación, ningún archivo fuera de `environment.ts` y `environment.qa.ts` importa `data/en-memoria/`. Los tests pueden importarlo: `environment.spec.ts` importa `ProyeccionEnMemoriaGateway` para el test de AC-04, y los `*.spec.ts` no entran al bundle (decisión de la usuaria, 2026-11-16).
 
 **Error handling**
 - Sin condiciones de error propias: es configuración por ambiente; el error del gateway de producción lo define Block 2 y lo maneja Block 3.
@@ -190,7 +191,7 @@ Los 2 tests del bloque pasan, `npm run build` (producción) y `npm run build -- 
 ## Final verification
 - `npm test` pasa completo, con la cobertura de líneas, ramas y funciones ≥ 80 % (AGENTS.md, Testing).
 - `npm run build` genera `./build_package` y `grep -rE "2031-10-14|2026-09-01" build_package/` no devuelve coincidencias (AC-06, ADR-001, threat-FEAT-001, R-02).
-- `grep -rn "en-memoria" src --include=*.ts` solo devuelve `src/environments/environment.ts`, `src/environments/environment.qa.ts` y los archivos de `data/en-memoria/` y sus specs.
+- `grep -rn "en-memoria" src --include=*.ts --exclude=*.spec.ts` solo devuelve `src/environments/environment.ts`, `src/environments/environment.qa.ts` y los archivos de `data/en-memoria/`.
 - `npm audit --omit=dev` revisado en el SAST de CODE (threat-FEAT-001, R-04).
 - Con `npm start`, `http://localhost:4200/?escenario=activo`, `/?escenario=fallecido`, `/` y `/?escenario=xyz` se ven como dicen AC-01, AC-03, AC-04 y AC-05.
 - Rollback: no hay migraciones ni cambios de datos; revertir es revertir los commits de la rama.

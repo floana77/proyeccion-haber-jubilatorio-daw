@@ -1,0 +1,30 @@
+# CI de pull requests (FEAT-002). Instala con el lockfile, corre lint, los tests de config,
+# el build y los tests unitarios. Sin secretos y con token de solo lectura (threat-FEAT-002).
+name: CI
+
+on: pull_request
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:config
+      - run: npm run build
+      - run: npm test -- --browsers=ChromeHeadlessCI

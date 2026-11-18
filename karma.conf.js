@@ -26,6 +26,11 @@ module.exports = function (config) {
     },
     reporters: ['progress', 'coverage'],
     browsers: ['ChromeHeadless'],
+    // Solo para el CI (`npm test -- --browsers=ChromeHeadlessCI`): el runner efímero no tiene
+    // sandbox de usuario para Chrome. En local se sigue usando ChromeHeadless con sandbox.
+    customLaunchers: {
+      ChromeHeadlessCI: { base: 'ChromeHeadless', flags: ['--no-sandbox'] },
+    },
     restartOnFileChange: true,
   });
 };

@@ -6,88 +6,73 @@
 | PRD | docs/daw/prd/prd-FEAT-002.md |
 | Tier | FEATURE |
 | Date | 2026-11-18 |
-| Spec loops | 0 |
+| Spec loops | 1 |
 | Loops since last human decision | 0 |
 
 ## Summary
-Se agrega angular-eslint 21.x (con ESLint 9.x) con las reglas recomendadas de TypeScript y templates más una regla propia que prohíbe importar `en-memoria/` fuera de los ambientes de desarrollo y QA (ADR-004, guard de ADR-001). Se corrigen los errores de lint del código existente sin cambiar comportamiento. Se crea `.github/workflows/ci.yml`, disparado solo por `pull_request`, que en Node 22 corre `npm ci`, `npm run lint`, `npm run test:config`, `npm run build` y `npm test -- --browsers=ChromeHeadlessCI`. Las propiedades del workflow y de la configuración de lint se verifican con tests de Node (`node --test`, sin dependencias nuevas) en `config/`, además de la corrida real del CI sobre el PR del ticket.
+Se agrega angular-eslint 21.x (con ESLint 9.x) con las reglas recomendadas de TypeScript y templates, solo las recomendadas, más una regla propia que prohíbe importar `en-memoria/` fuera de los ambientes de desarrollo y QA (ADR-004, guard de ADR-001). El código existente ya pasa el lint con 0 errores, así que no hay correcciones en `src/`; un test lo deja fijado. Se crea `.github/workflows/ci.yml`, disparado solo por `pull_request`, que en Node 22 corre `npm ci`, `npm run lint`, `npm run test:config`, `npm run build` y `npm test -- --browsers=ChromeHeadlessCI`. Las propiedades del workflow y de la configuración de lint se verifican con tests de Node (`node --test config/*.test.mjs`, sin dependencias nuevas) en `config/`, además de la corrida real del CI sobre el PR del ticket.
 
-Decisiones de la usuaria (2026-11-18): regla de lint sobre `en-memoria/` sí; reglas de capas (`domain/` sin Angular, `ui/` sin `data/`) quedan para otro ticket; launcher de Chrome sin sandbox solo para CI.
+Decisiones de la usuaria (2026-11-18, en PLAN): regla de lint sobre `en-memoria/` sí; reglas de capas (`domain/` sin Angular, `ui/` sin `data/`) quedan para otro ticket; launcher de Chrome sin sandbox solo para CI.
+
+Decisiones de la usuaria (2026-11-18, al volver de CODE por el Block 1): solo las configuraciones recomendadas (se sacan `tseslint.configs.stylistic` y `angular.configs.templateAccessibility` que agregó el schematic); los `import()` dinámicos de `en-memoria/` no se bloquean con lint y quedan a cargo del chequeo de `build_package` en VERIFY; el bloque de correcciones de lint se elimina porque no hay errores, y su test pasa al Block 1.
+
+Correcciones de la spec al volver de CODE: el script es `node --test config/*.test.mjs` (en Node 22, `node --test <carpeta>` falla); `@eslint/js` 9.x se declara como dependencia; el patrón de la regla incluye la carpeta sola (`**/en-memoria`); `typescript-eslint` se alinea con la versión que trae angular-eslint.
 
 ## Coverage: PRD → blocks
 | Requirement | Covered by |
 |---|---|
-| FR-01 | Block 3 |
-| FR-02 | Block 3 |
-| FR-03 | Block 1, Block 3 |
-| FR-04 | Block 3 |
-| FR-05 | Block 3 |
-| FR-06 | Block 1, Block 4 |
-| FR-07 | Block 2 |
-| NFR-01 | Strategy: el workflow no referencia `secrets.*`; `permissions: contents: read` a nivel workflow; `persist-credentials: false`; lo verifica `test_workflow_sin_secretos` y `test_workflow_permisos_solo_lectura` (Block 3) |
+| FR-01 | Block 2 |
+| FR-02 | Block 2 |
+| FR-03 | Block 1, Block 2 |
+| FR-04 | Block 2 |
+| FR-05 | Block 2 |
+| FR-06 | Block 1, Block 3 |
+| FR-07 | Block 1 |
+| NFR-01 | Strategy: el workflow no referencia `secrets.*`; `permissions: contents: read` a nivel workflow; `persist-credentials: false`; lo verifican `test_workflow_sin_secretos` y `test_workflow_permisos_solo_lectura` (Block 2) |
 | NFR-02 | Strategy: los tests de Karma usan el gateway en memoria (`environment.ts`) y no hay `HttpClient` en `src/`; los tests de `config/` leen archivos locales; la única red es `npm ci` hacia el registro |
 | NFR-03 | Strategy: `timeout-minutes: 15` en el job y `concurrency` con `cancel-in-progress: true`; caché de npm de `actions/setup-node`; la duración de la corrida real del PR se registra en VERIFY (≤ 10 min) |
-| NFR-04 | Strategy: `actions/setup-node` con `node-version: 22`; ESLint fijado en 9.x porque 10.x exige Node `^22.13` y el proyecto declara `^22.12.0` (Block 1) |
+| NFR-04 | Strategy: `actions/setup-node` con `node-version: 22`; ESLint y `@eslint/js` fijados en 9.x porque 10.x exige Node `^22.13` y el proyecto declara `^22.12.0` (Block 1) |
 
 ## Dependencies between blocks
 - Block 1 va primero: instala el lint y el script `npm run test:config`.
-- Block 2 depende de Block 1 (necesita `npm run lint`).
-- Block 3 depende de Block 1 (el workflow corre `npm run lint` y `npm run test:config`) y de Block 2 (el CI tiene que arrancar en verde, AC-06).
-- Block 4 depende de Block 1 y Block 3 (documenta sus comandos y el workflow).
-- Orden: 1 → 2 → 3 → 4.
+- Block 2 depende de Block 1 (el workflow corre `npm run lint` y `npm run test:config`, y el CI tiene que arrancar en verde, AC-06).
+- Block 3 depende de Block 1 y Block 2 (documenta sus comandos y el workflow).
+- Orden: 1 → 2 → 3.
 
 ## Block 1 — Lint con angular-eslint
 
 **Files**
-- `package.json` (modified) — devDependencies `angular-eslint` 21.4.x, `eslint` 9.39.x, `typescript-eslint` 8.x (versiones exactas que resuelva la instalación, con `eslint` forzado a `^9`); scripts `"lint": "ng lint"` y `"test:config": "node --test config/"`.
+- `package.json` (modified) — devDependencies `angular-eslint` 21.4.x, `eslint` ^9.39, `@eslint/js` ^9.39 y `typescript-eslint` en la misma versión 8.x que trae `angular-eslint` (para no duplicar `@typescript-eslint/*` en el árbol); scripts `"lint": "ng lint"` y `"test:config": "node --test config/*.test.mjs"`.
 - `package-lock.json` (modified) — resultado de la instalación.
-- `angular.json` (modified) — target `lint` con `@angular-eslint/builder:lint` y `lintFilePatterns: ["src/**/*.ts", "src/**/*.html"]`; si el schematic agrega `cli.schematicCollections`, se acepta y se lista en el reporte del bloque.
-- `eslint.config.js` (new) — flat config CommonJS: recomendadas de `typescript-eslint` y de `angular-eslint` (TS y templates), prefijo de selectores `app`, y la regla `no-restricted-imports` sobre `en-memoria/`.
-- `config/lint.test.mjs` (new) — tests de Node sobre la configuración de lint, usando la API `ESLint` de `eslint`.
+- `angular.json` (modified) — target `lint` con `@angular-eslint/builder:lint` y `lintFilePatterns: ["src/**/*.ts", "src/**/*.html"]`; se acepta `cli.schematicCollections: ["angular-eslint"]` y el reformateo del archivo que hizo el schematic (sin cambios de valores).
+- `eslint.config.js` (new) — flat config CommonJS: `@eslint/js` recommended, `typescript-eslint` recommended, `angular-eslint` `tsRecommended` y `templateRecommended` (sin `stylistic` ni `templateAccessibility`), prefijo de selectores `app`, y la regla `no-restricted-imports` sobre `en-memoria/`.
+- `config/lint.test.mjs` (new) — tests de Node sobre la configuración de lint y sobre el proyecto, usando la API `ESLint` de `eslint`.
 
 **Logic**
-Implementa FR-03 (la regla existe y falla con error) y FR-06 (comando local `npm run lint`). Instalación con `npx ng add angular-eslint@21.4 --skip-confirmation` y después `npm install -D eslint@^9` para fijar la versión mayor. En `eslint.config.js`, la regla `no-restricted-imports` con patrón `**/en-memoria/**` (severidad `error`) aplica a `src/**/*.ts`, con un bloque de excepción para `src/environments/environment.ts`, `src/environments/environment.qa.ts`, `src/**/*.spec.ts` y `src/app/proyeccion/data/en-memoria/**`. El alcance del lint es solo `src/`; `config/`, `karma.conf.js` y `eslint.config.js` no se lintean.
+Implementa FR-03 (la regla existe y falla con error), FR-06 (comando local `npm run lint`) y FR-07 (el código existente queda con 0 errores). Instalación con `npx ng add angular-eslint@21.4 --skip-confirmation`, después `npm install -D eslint@^9 @eslint/js@^9` para fijar la versión mayor 9 y `typescript-eslint` alineado con la versión de `@typescript-eslint/utils` que trae `angular-eslint` (`npm ls @typescript-eslint/utils` sin duplicados). En `eslint.config.js`, la regla `no-restricted-imports` con `group: ["**/en-memoria", "**/en-memoria/**"]` (severidad `error`) aplica a `src/**/*.ts`, con un bloque de excepción para `src/environments/environment.ts`, `src/environments/environment.qa.ts`, `src/**/*.spec.ts` y `src/app/proyeccion/data/en-memoria/**`. Los `import()` dinámicos quedan fuera de la regla por decisión de la usuaria. El alcance del lint es solo `src/`; `config/`, `karma.conf.js` y `eslint.config.js` no se lintean. Si al correr `npm run lint` apareciera algún error, se corrige sin cambiar comportamiento y sin `eslint-disable` sin motivo; hoy hay 0.
 
 **Input validation**
 - Archivos que recibe el lint: solo los que matchean `src/**/*.ts` y `src/**/*.html`; cualquier otra ruta queda fuera.
-- Imports de `en-memoria/`: permitidos solo en los cuatro patrones de excepción listados; en cualquier otro archivo de `src/` son un error.
+- Imports estáticos de `en-memoria/` (de un archivo de la carpeta o de la carpeta sola): permitidos solo en los cuatro patrones de excepción listados; en cualquier otro archivo de `src/` son un error.
 
 **Error handling**
-- Import inválido de `en-memoria/` desde código de producción (por ejemplo `src/app/proyeccion/ui/**`) — ESLint reporta un error con archivo, línea y mensaje de la regla; `npm run lint` termina con código distinto de 0.
+- Import inválido de un archivo de `en-memoria/` desde código de producción (por ejemplo `src/app/proyeccion/ui/**`) — ESLint reporta un error con archivo, línea y mensaje de la regla; `npm run lint` termina con código distinto de 0.
+- Import inválido de la carpeta `en-memoria` sola (por ejemplo `'../data/en-memoria'`) — mismo error y mismo resultado.
 - Error de lint en un template `.html` — reportado por las reglas de template con archivo y línea; `npm run lint` termina con código distinto de 0.
+- Un error de lint en el código existente del proyecto — `test_lint_del_proyecto_sin_errores` falla y el bloque no cierra.
 
 **Required tests**
-- [ ] test_lint_reporta_import_invalido_de_en_memoria — un archivo de `ui/` que importa `en-memoria/` es rechazado con error, archivo y línea (sad path) — validates AC-03
+- [ ] test_lint_reporta_import_invalido_de_en_memoria — un archivo de `ui/` que importa un archivo de `en-memoria/` es rechazado con error, archivo y línea (sad path) — validates AC-03
+- [ ] test_lint_reporta_import_invalido_de_carpeta_en_memoria — un archivo de `ui/` que importa la carpeta `en-memoria` sola es rechazado con error, archivo y línea (sad path) — validates AC-03
 - [ ] test_lint_reporta_error_invalido_en_template — un template con un error de lint es rechazado con archivo y línea (sad path) — validates AC-03
-- [ ] test_lint_permite_en_memoria_en_environment_ts — `src/environments/environment.ts` puede importar `en-memoria/` sin error — validates AC-03
+- [ ] test_lint_permite_en_memoria_en_environment_ts — `src/environments/environment.ts` y `environment.qa.ts` pueden importar `en-memoria/` sin error, y `environment.prod.ts` es rechazado — validates AC-03
 - [ ] test_lint_permite_en_memoria_en_spec — un `*.spec.ts` puede importar `en-memoria/` sin error — validates AC-03
+- [ ] test_lint_del_proyecto_sin_errores — `ESLint.lintFiles(["src/**/*.ts", "src/**/*.html"])` devuelve 0 errores; un error en el código existente hace fallar el test (sad path) — validates AC-06
 
 **Completion criterion**
-`npm run test:config` pasa los cuatro tests; `npm run lint` corre y reporta los errores del código existente (que corrige Block 2); `npm ls eslint` muestra 9.x.
+`npm run test:config` pasa los seis tests; `npm run lint` termina con 0 errores; `npm ls eslint @eslint/js` muestra 9.x; `npm ls @typescript-eslint/utils` muestra una sola versión; `eslint.config.js` no carga `stylistic` ni `templateAccessibility`; la suite de Karma sigue pasando.
 
-## Block 2 — Corregir los errores de lint del código existente
-
-**Files**
-- `src/app/**/*.ts`, `src/app/**/*.html`, `src/environments/*.ts`, `src/main.ts`, `src/index.html` (modified, solo los que `npm run lint` reporte) — correcciones de lint; la lista exacta de archivos tocados va en el reporte del bloque.
-- `config/lint.test.mjs` (modified) — se agrega el test de lint del proyecto completo.
-
-**Logic**
-Implementa FR-07. Se corre `npm run lint`, se corrige cada error (primero `npx ng lint --fix` para lo automático, después a mano), y se vuelve a correr hasta 0 errores. Las correcciones no cambian comportamiento: la suite de Karma sigue pasando con la cobertura 80/80/80. No se agrega ningún `eslint-disable` sin un comentario con el motivo en la misma línea, y no se apaga ni se baja ninguna regla en `eslint.config.js`.
-
-**Error handling**
-- Una corrección cambiaría comportamiento visible para el afiliado — se para el bloque y se consulta a la usuaria; la regla no se baja en silencio.
-- Un test de Karma falla después de una corrección — se revierte esa corrección y se rehace; el bloque no cierra con tests en rojo.
-- Un `eslint-disable` sin motivo — rechazado en la revisión del bloque.
-
-**Required tests**
-- [ ] test_lint_del_proyecto_sin_errores — `ESLint.lintFiles(["src/**/*.ts", "src/**/*.html"])` devuelve 0 errores — validates AC-06
-- [ ] Suite Karma existente (`npm test`) en verde con cobertura ≥ 80/80/80 después de las correcciones: un test que falla o una cobertura baja es un error que bloquea el bloque (sad path)
-- [ ] Revisión del diff: 0 `eslint-disable` sin motivo; un `eslint-disable` sin motivo es rechazado (sad path)
-
-**Completion criterion**
-`npm run lint` termina con 0 errores, `npm run test:config` y `npm test` pasan, y `git diff` de `eslint.config.js` en este bloque es vacío.
-
-## Block 3 — Workflow de CI
+## Block 2 — Workflow de CI
 
 **Files**
 - `.github/workflows/ci.yml` (new) — el workflow.
@@ -131,10 +116,10 @@ El chequeo de tipos de los `*.spec.ts` no lo hace `npm run build` (su `tsconfig.
 **Completion criterion**
 `npm run test:config` pasa los tests de este bloque y los anteriores; `npm test -- --browsers=ChromeHeadlessCI` pasa en local; el primer push del PR del ticket corre el workflow con los cinco pasos en verde.
 
-## Block 4 — Documentar lint y CI en AGENTS.md
+## Block 3 — Documentar lint y CI en AGENTS.md
 
 **Files**
-- `AGENTS.md` (modified) — viñeta de Lint en el Stack (angular-eslint 21 + ESLint 9, `eslint.config.js`, alcance `src/`, regla de `en-memoria/`), viñeta de CI (`.github/workflows/ci.yml`, solo `pull_request`, Node 22), fila "Linter / formatter" → "ESLint (angular-eslint) / formatter no configurado", comandos `npm run lint` y `npm run test:config`.
+- `AGENTS.md` (modified) — viñeta de Lint en el Stack (angular-eslint 21 + ESLint 9, `eslint.config.js`, alcance `src/`, solo reglas recomendadas, regla de `en-memoria/`), viñeta de CI (`.github/workflows/ci.yml`, solo `pull_request`, Node 22), fila "Linter / formatter" → "ESLint (angular-eslint) / formatter no configurado", comandos `npm run lint` y `npm run test:config`.
 - `config/ci-workflow.test.mjs` (modified) — se agrega el test de documentación.
 
 **Logic**
@@ -152,4 +137,5 @@ Implementa FR-06 del lado de la documentación: el comando de lint y el CI queda
 ## Final verification
 - `npm ci`, `npm run lint`, `npm run test:config`, `npm run build` y `npm test` pasan en local con Node 22.
 - El PR del ticket muestra el workflow `CI` en verde, con duración ≤ 10 minutos (NFR-03).
+- `build_package/` del build de producción no contiene los datos simulados de `en-memoria/` (chequeo de ADR-001 en VERIFY, que también cubre los `import()` dinámicos).
 - `validate_spec.py --tier FEATURE` y `validate_threat.py` pasan sobre este documento y el modelo de amenazas.

@@ -10,11 +10,11 @@
 ## Components
 | Component | Source in the spec |
 |---|---|
-| `.github/workflows/ci.yml` | Block 3 |
+| `.github/workflows/ci.yml` | Block 2 |
 | `eslint.config.js` y las devDependencies de lint en `package.json` / `package-lock.json` | Block 1 |
-| `karma.conf.js` (launcher `ChromeHeadlessCI`) | Block 3 |
+| `karma.conf.js` (launcher `ChromeHeadlessCI`) | Block 2 |
 
-Block 2 (correcciones de lint en `src/**`) no agrega superficie: no cambia comportamiento, no agrega llamadas de red ni datos. Block 4 solo toca `AGENTS.md`.
+El código existente ya pasa el lint con 0 errores, así que no hay cambios en `src/**` ni superficie nueva ahí. Block 3 solo toca `AGENTS.md`.
 
 ## Trust boundaries
 - Autor del pull request (incluye forks de un repositorio **público**) → runner de GitHub Actions: el código del PR (incluidos `package.json`, `eslint.config.js`, `karma.conf.js` y los tests) se ejecuta dentro del runner.
@@ -35,7 +35,7 @@ Block 2 (correcciones de lint en `src/**`) no agrega superficie: no cambia compo
 - **Spoofing:** un paquete con nombre parecido (typosquatting) podría entrar en lugar de `angular-eslint`. Mitigación: se instala con el nombre exacto vía `ng add angular-eslint@21` y la versión queda fijada en el lockfile (R-07).
 - **Tampering:** una versión comprometida de un paquete publicada después. Mitigación: `npm ci` instala exactamente las versiones e integridades (`integrity` sha512) del lockfile y falla si no coinciden (R-07).
 - **Repudiation:** no aplica: son herramientas de desarrollo sin acciones de usuario; el historial de git registra quién cambió el lockfile.
-- **Information Disclosure:** las dependencias de lint son `devDependencies`: no entran al bundle de producción que llega al afiliado; el build de producción no las importa.
+- **Information Disclosure:** las dependencias de lint son `devDependencies`: no entran al bundle de producción que llega al afiliado; el build de producción no las importa. La regla `no-restricted-imports` (`**/en-memoria` y `**/en-memoria/**`) impide que un import estático meta los datos simulados en producción; un `import()` dinámico no lo detecta, y por decisión de la usuaria lo cubre el chequeo de `build_package/` en VERIFY (R-10).
 - **Denial of Service:** una regla de lint muy costosa podría alargar el job; queda acotado por el mismo `timeout-minutes: 15` (R-05).
 - **Elevation of Privilege:** los scripts `postinstall` de cualquier dependencia corren en el runner durante `npm ci` con los permisos del job (token de solo lectura, sin secretos), así que su alcance queda limitado a lo que R-06 y R-04 permiten (R-08).
 
@@ -68,6 +68,7 @@ Los tests usan el gateway en memoria: no hay datos de afiliados (PII) ni llamada
 | R-07 | dependencia de lint comprometida o typosquatting | T | L | M | nombre exacto, versión e integridad fijadas en el lockfile, `npm ci`; el SAST de CODE revisa las dependencias nuevas |
 | R-08 | script de instalación malicioso corre en el runner | E | L | L | alcance acotado por R-04 y R-06 (sin secretos, token de solo lectura); no se usa `--ignore-scripts` porque el build de Angular necesita los binarios que instalan esos scripts |
 | R-09 | Chrome sin sandbox en el CI | E | L | L | `--no-sandbox` solo en el launcher `ChromeHeadlessCI`, usado solo por el workflow sobre un runner efímero sin secretos (R-01, R-04, R-06); el launcher local no cambia |
+| R-10 | datos simulados de `en-memoria/` llegan al bundle de producción por un `import()` dinámico que la regla de lint no ve | I | L | M | chequeo de `build_package/` en VERIFY (ADR-001) buscando los datos simulados; los imports estáticos los bloquea la regla `no-restricted-imports` |
 
 ## Supply chain
 Dependencias nuevas (solo desarrollo): `angular-eslint` 21.x (trae `@angular-eslint/*` 21.x), `eslint` y `typescript-eslint` 8.x, en las versiones que resuelva `ng add` y quedan fijadas en `package-lock.json`. Acciones de terceros: `actions/checkout` y `actions/setup-node`, oficiales de GitHub, pineadas por SHA. El SAST de CODE las evalúa junto al resto.

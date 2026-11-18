@@ -24,7 +24,7 @@ El proyecto no tenía linter. FEAT-002 (`docs/daw/prd/prd-FEAT-002.md`) agregó 
 - **Cons:** el compilador no detecta código muerto, malas prácticas de Angular ni problemas de los templates que no son errores de tipos.
 
 ## Decision
-Se eligió angular-eslint con las reglas recomendadas de TypeScript y de templates, por decisión de la usuaria del 2026-11-18. Es la única opción que revisa los templates y se integra con el CLI de Angular. Los errores que marcó sobre el código existente se corrigieron en el mismo ticket, en lugar de bajar reglas a warning.
+Se eligió angular-eslint con las reglas recomendadas de TypeScript y de templates, por decisión de la usuaria del 2026-11-18. Es la única opción que revisa los templates y se integra con el CLI de Angular. La decisión fue corregir en el mismo ticket los errores que marcara sobre el código existente, en lugar de bajar reglas a warning; al instalarlo, el código dio 0 errores.
 
 El alcance quedó en `src/**/*.ts` y `src/**/*.html`. Se sumó una sola regla propia: `no-restricted-imports` sobre `en-memoria/`, permitida solo en `environment.ts`, `environment.qa.ts`, los `*.spec.ts` y la propia carpeta. Es el chequeo automático de la garantía de ADR-001. Las reglas de capas (`domain/` sin Angular, `ui/` sin `data/`) se dejaron para otro ticket, por decisión de la usuaria. ESLint quedó en 9.x porque 10.x exige Node `^22.13`, fuera del rango `^22.12.0` que declara el proyecto.
 

@@ -1,7 +1,8 @@
-// Tests del workflow de CI y del launcher de Karma para CI (FEAT-002, Block 2).
+// Tests del workflow de CI, del launcher de Karma para CI (FEAT-002, Block 2) y de la
+// documentación de lint y CI en AGENTS.md (Block 3).
 // Se corren con `npm run test:config`, sin dependencias nuevas. `ci.yml` se lee como texto (con
 // un lector mínimo de la forma que usa este workflow); `karma.conf.js` se evalúa como CommonJS
-// con un `config.set` falso, para chequear el objeto que configura.
+// con un `config.set` falso, para chequear el objeto que configura; `AGENTS.md` se lee como texto.
 //
 // Cada propiedad se chequea con una función `problemas*` que devuelve la lista de problemas
 // encontrados. El test la aplica al archivo real (tiene que dar 0) y a una variante rota del
@@ -477,4 +478,56 @@ test('test_karma_launcher_ci_sin_sandbox_solo_en_ci', () => {
     "ChromeSinSandbox: { base: 'Chrome', flags: ['--no-sandbox'] },\n      ChromeHeadlessCI: {",
   );
   assert.ok(problemasKarma(cargarKarma(otroSinSandbox)).length > 0, 'otro launcher con --no-sandbox tendría que ser rechazado');
+});
+
+// ---------- Documentación en AGENTS.md (Block 3) ----------
+
+const RUTA_AGENTS = path.join(raiz, 'AGENTS.md');
+
+/**
+ * AGENTS.md declara `npm run lint` y `npm run test:config` en el bloque ```bash de Comandos,
+ * menciona el workflow de CI y ya no dice que no hay linter.
+ */
+function problemasAgents(texto) {
+  const problemas = [];
+  const bloqueBash = texto.match(/```bash\n([\s\S]*?)```/)?.[1];
+  if (bloqueBash === undefined) problemas.push('AGENTS.md no tiene el bloque ```bash de Comandos');
+  else {
+    const comandos = bloqueBash.split('\n').map((l) => l.replace(/\s+#.*$/, '').trim());
+    for (const requerido of ['npm run lint', 'npm run test:config']) {
+      if (!comandos.includes(requerido)) problemas.push(`el bloque bash de Comandos no tiene \`${requerido}\``);
+    }
+  }
+  if (!texto.includes('.github/workflows/ci.yml')) problemas.push('AGENTS.md no menciona `.github/workflows/ci.yml`');
+  if (/\|\s*Linter \/ formatter\s*\|\s*No configurado\s*\|/.test(texto)) {
+    problemas.push('AGENTS.md todavía dice "Linter / formatter | No configurado"');
+  }
+  const fila = texto.match(/^\|\s*Linter \/ formatter\s*\|(.*)$/m)?.[1];
+  if (fila === undefined) problemas.push('AGENTS.md no tiene la fila "Linter / formatter"');
+  else if (!/\bESLint\b/.test(fila)) problemas.push('la fila "Linter / formatter" no nombra ESLint');
+  return problemas;
+}
+
+test('test_agents_declara_lint_y_ci', () => {
+  const texto = fs.readFileSync(RUTA_AGENTS, 'utf8');
+  assert.deepEqual(problemasAgents(texto), []);
+  const sinLint = texto.split('npm run lint').join('npm run otra-cosa');
+  assert.ok(problemasAgents(sinLint).length > 0, 'un AGENTS.md sin `npm run lint` tendría que ser rechazado');
+  const sinTestConfig = texto.split('npm run test:config').join('npm run otra-cosa');
+  assert.ok(problemasAgents(sinTestConfig).length > 0, 'un AGENTS.md sin `npm run test:config` tendría que ser rechazado');
+  const sinWorkflow = texto.split('.github/workflows/ci.yml').join('otro.yml');
+  assert.ok(problemasAgents(sinWorkflow).length > 0, 'un AGENTS.md sin `.github/workflows/ci.yml` tendría que ser rechazado');
+  const conFilaVieja = texto.replace(/^\|\s*Linter \/ formatter\s*\|.*$/m, '| Linter / formatter | No configurado |');
+  assert.ok(problemasAgents(conFilaVieja).length > 0, 'la fila "Linter / formatter | No configurado" tendría que ser rechazada');
+  // Saca los dos comandos solo del bloque ```bash de Comandos: siguen mencionados en la viñeta CI.
+  const sinComandosEnBash = texto.replace(/```bash\n[\s\S]*?```/, (bloque) =>
+    bloque
+      .split('\n')
+      .filter((l) => !/^npm run (lint|test:config)\b/.test(l))
+      .join('\n'),
+  );
+  assert.notEqual(sinComandosEnBash, texto, 'la variante tendría que sacar líneas del bloque bash');
+  assert.ok(problemasAgents(sinComandosEnBash).length > 0, 'un bloque bash de Comandos sin `npm run lint` ni `npm run test:config` tendría que ser rechazado');
+  const filaSinEslint = texto.replace(/^\|\s*Linter \/ formatter\s*\|.*$/m, '| Linter / formatter | Prettier |');
+  assert.ok(problemasAgents(filaSinEslint).length > 0, 'una fila "Linter / formatter" que no nombra ESLint tendría que ser rechazada');
 });

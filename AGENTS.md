@@ -29,7 +29,7 @@ npm install                 # instalar dependencias
 npm start                   # levantar en dev: http://localhost:4200 (usa environment.ts)
 npm start -- -c qa          # levantar con la configuración de QA
 npm test                    # tests unitarios (Karma)
-npm run build               # build de producción (configuración por defecto)
+npm run build               # build de producción (configuración por defecto); también es el typecheck (strict + strictTemplates)
 npm run build -- -c qa      # build de QA
 ```
 

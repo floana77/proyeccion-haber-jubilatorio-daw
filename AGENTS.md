@@ -10,6 +10,8 @@ Working language: Spanish — write all artifacts in Spanish (PRDs, specs, ADRs,
 - UI: solo PrimeFlex ^3.3. PrimeNG y Chart.js vuelven, en una versión compatible con Angular 21, cuando un ticket los use (ADR-003).
 - Build: `@angular-builders/custom-webpack:browser` ^21 (webpack, no esbuild); config extra en `config/webpack.custom.js`. Salida en `./build_package`.
 - Tests unitarios: Karma ~6.4 + Jasmine ~5.2, en Chrome. Los `.feature` (Gherkin) no se ejecutan por ahora.
+- Lint: angular-eslint 21 + ESLint 9, configurado en `eslint.config.js`. Alcance: `src/**/*.ts` y `src/**/*.html`, con los conjuntos recomendados (sin `stylistic` ni `templateAccessibility`) más el prefijo `app` obligatorio en los selectores. La regla `no-restricted-imports` prohíbe los imports estáticos de `en-memoria/` fuera de `environment.ts`, `environment.qa.ts`, los `*.spec.ts` y la propia carpeta (guard de ADR-001); los `import()` dinámicos los cubre el chequeo de `build_package` en VERIFY.
+- CI: `.github/workflows/ci.yml`, se dispara solo en `pull_request`, con Node 22. Pasos: `npm ci` → `npm run lint` → `npm run test:config` → `npm run build` → `npm test -- --browsers=ChromeHeadlessCI`.
 - Ambientes: `src/environments/environment.ts` (dev), `environment.qa.ts` y `environment.prod.ts`, que se reemplazan por `fileReplacements`.
 - Mockups de desarrollo y QA: en la primera versión están dentro de la app (gateway en memoria) y solo se importan desde `environment.ts` y `environment.qa.ts`. Los servidores mock de Postman quedan para más adelante; sus URLs van solo en esos mismos archivos.
 
@@ -20,7 +22,7 @@ Working language: Spanish — write all artifacts in Spanish (PRDs, specs, ADRs,
 | Framework | Angular 21.2 + PrimeFlex 3 |
 | Base de datos | N/A (solo consume los servicios backend actuales) |
 | Test runner | Karma + Jasmine (Chrome) |
-| Linter / formatter | No configurado |
+| Linter / formatter | ESLint (angular-eslint) / formatter no configurado |
 | Package manager | npm |
 
 Comandos:
@@ -29,7 +31,9 @@ npm install                 # instalar dependencias
 npm start                   # levantar en dev: http://localhost:4200 (usa environment.ts)
 npm start -- -c qa          # levantar con la configuración de QA
 npm test                    # tests unitarios (Karma)
-npm run build               # build de producción (configuración por defecto)
+npm run lint                # lint con angular-eslint (src/**/*.ts y src/**/*.html)
+npm run test:config         # tests de configuración (config/*.test.mjs, con node --test)
+npm run build               # build de producción (configuración por defecto); también es el typecheck (strict + strictTemplates)
 npm run build -- -c qa      # build de QA
 ```
 

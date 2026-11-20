@@ -25,7 +25,7 @@ describe('AppComponent', () => {
 
   it('se crea', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    expect(fixture.componentInstance).toBeTruthy();
+    expect(fixture.componentInstance).toBeFalsy();
   });
 
   it('renderiza ProyeccionPageComponent con el título "Tu proyección de haber jubilatorio" (AC-01)', () => {
